@@ -21,11 +21,11 @@ class GithubApiClient {
             baseURL: "https://api.github.com/graphql",
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${gitApi}`
+                'Authorization': `Bearer ${gitApi || process.env.GITHUB_API_KEY}`
             }
         });
     }
-    countMergedPRsByAuthor(owner, repository, author) {
+    mergedPRsByAuthor(owner, repository, author) {
         var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             const uniqueMergedPRs = new Set();
@@ -38,7 +38,7 @@ class GithubApiClient {
                     if (!filteredPRs) {
                         break;
                     }
-                    filteredPRs.forEach((pr) => uniqueMergedPRs.add(pr.id));
+                    filteredPRs.forEach((pr) => uniqueMergedPRs.add(pr));
                     after = response.data.data.repository.pullRequests.pageInfo.endCursor;
                     if (!response.data.data.repository.pullRequests.pageInfo.hasNextPage) {
                         break;
@@ -48,7 +48,7 @@ class GithubApiClient {
             catch (err) {
                 console.log('err: ', err);
             }
-            return uniqueMergedPRs.size;
+            return [...uniqueMergedPRs];
         });
     }
 }

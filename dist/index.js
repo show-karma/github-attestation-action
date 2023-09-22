@@ -32,6 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.main = void 0;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const attest_1 = require("./attest");
@@ -41,14 +42,7 @@ function main() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            console.log('Reading inputs...');
-            const privateKey = core.getInput('private-key', { required: true, trimWhitespace: true });
-            const gitApi = core.getInput('git-api', { required: true, trimWhitespace: true });
-            const network = core.getInput('network', { required: false, trimWhitespace: true }) || 'sepolia';
-            const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || config_1.defaultRpcUrls[network];
-            const _branch = core.getInput('branch', { required: false, trimWhitespace: true }) || '';
-            const _branches = core.getMultilineInput('branches', { required: false, trimWhitespace: true }) || [];
-            const allowedBranches = (_branches === null || _branches === void 0 ? void 0 : _branches.length) ? _branches : [_branch];
+            const { privateKey, gitApi, network, rpcUrl, _branch, _branches, allowedBranches } = (0, config_1.getCredentials)();
             if (!privateKey) {
                 throw new Error('private-key is required');
             }
@@ -100,7 +94,7 @@ function main() {
             }
             const githubApiClient = new githubApiClient_1.GithubApiClient(gitApi);
             const [owner, repository] = repo === null || repo === void 0 ? void 0 : repo.split('/');
-            const pullRequestCount = yield githubApiClient.countMergedPRsByAuthor(owner, repository, username);
+            const pullRequestCount = (yield githubApiClient.mergedPRsByAuthor(owner, repository, username)).length || 0;
             if (!pullRequestCount) {
                 console.log('pullRequestCount is not available, skipping attestation.');
                 return;
@@ -140,4 +134,5 @@ function main() {
         }
     });
 }
+exports.main = main;
 main().catch(error => core.setFailed(error.message));

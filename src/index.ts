@@ -1,19 +1,12 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { attest } from './attest'
-import { supportedNetworks, defaultRpcUrls } from './config'
+import { supportedNetworks, defaultRpcUrls, getCredentials } from './config'
 import { GithubApiClient } from './github/githubApiClient'
 
-async function main() {
+export async function main() {
   try {
-    console.log('Reading inputs...')
-    const privateKey = core.getInput('private-key', { required: true, trimWhitespace: true })
-    const gitApi = core.getInput('git-api', { required: true, trimWhitespace: true })
-    const network = core.getInput('network', { required: false, trimWhitespace: true }) || 'sepolia'
-    const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || defaultRpcUrls[network]
-    const _branch = core.getInput('branch', { required: false, trimWhitespace: true }) || ''
-    const _branches = core.getMultilineInput('branches', { required: false, trimWhitespace: true }) || []
-    const allowedBranches = _branches?.length ? _branches : [_branch]
+    const {privateKey, gitApi, network, rpcUrl, _branch, _branches, allowedBranches}  = getCredentials();
 
     if (!privateKey) {
       throw new Error('private-key is required')
@@ -80,9 +73,9 @@ async function main() {
       return
     }
 
-    const githubApiClient = new GithubApiClient(gitApi);
-    const [owner, repository] = repo?.split('/');
-    const pullRequestCount  =  await githubApiClient.countMergedPRsByAuthor(owner, repository, username)
+      const githubApiClient = new GithubApiClient(gitApi);
+      const [owner, repository] = repo?.split('/');
+      const pullRequestCount  = ( await githubApiClient.mergedPRsByAuthor(owner, repository, username)).length || 0
 
     if (!pullRequestCount) {
       console.log('pullRequestCount is not available, skipping attestation.')

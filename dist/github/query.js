@@ -8,6 +8,9 @@ const queryGetMergedPRsByAuthor = (owner, repository, after) => {
       pullRequests(states: MERGED, ${after ? `after: "${after}"` : ''}, first: 100) {
         nodes {
           id,
+          title,
+          permalink
+          baseRefName
           author {
             login
           }
