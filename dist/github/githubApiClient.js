@@ -26,7 +26,7 @@ class GithubApiClient {
         });
     }
     mergedPRsByAuthor(owner, repository, author) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             const uniqueMergedPRs = new Set();
             try {
@@ -34,7 +34,8 @@ class GithubApiClient {
                 while (true) {
                     const query = (0, query_1.queryGetMergedPRsByAuthor)(owner, repository, after);
                     const response = yield this.client.post('', { query });
-                    const filteredPRs = (_d = (_c = (_b = (_a = response.data.data) === null || _a === void 0 ? void 0 : _a.repository) === null || _b === void 0 ? void 0 : _b.pullRequests) === null || _c === void 0 ? void 0 : _c.nodes) === null || _d === void 0 ? void 0 : _d.filter((pr) => pr.author.login.toLowerCase() === author.toLowerCase());
+                    const prS = ((_c = (_b = (_a = response.data.data) === null || _a === void 0 ? void 0 : _a.repository) === null || _b === void 0 ? void 0 : _b.pullRequests) === null || _c === void 0 ? void 0 : _c.nodes) || [];
+                    const filteredPRs = !author ? prS : prS === null || prS === void 0 ? void 0 : prS.filter((pr) => pr.author.login.toLowerCase() === author.toLowerCase());
                     if (!filteredPRs) {
                         break;
                     }

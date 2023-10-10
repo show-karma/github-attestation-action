@@ -24,7 +24,7 @@ export class GithubApiClient {
   }
 
 
-  async mergedPRsByAuthor(owner: string, repository: string, author: string): Promise<IPullRequest[]> {
+  async mergedPRsByAuthor(owner: string, repository: string, author?: string): Promise<IPullRequest[]> {
     const uniqueMergedPRs = new Set<IPullRequest>();
   
     try {
@@ -33,8 +33,9 @@ export class GithubApiClient {
       while (true) {
         const query = queryGetMergedPRsByAuthor(owner, repository, after);
         const response = await this.client.post('', { query });
-  
-        const filteredPRs = response.data.data?.repository?.pullRequests?.nodes?.filter((pr: { author: { login: string; }; }) => pr.author.login.toLowerCase() === author.toLowerCase());
+        const prS =  response.data.data?.repository?.pullRequests?.nodes || [];
+
+        const filteredPRs = !author ? prS : prS?.filter((pr: { author: { login: string; }; }) => pr.author.login.toLowerCase() === author.toLowerCase());
   
         if (!filteredPRs) {
           break;

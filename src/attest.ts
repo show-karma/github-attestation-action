@@ -10,7 +10,7 @@ const addresses: any = {
   'sepolia': {
     schemaRegistryContractAddress: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0', // Sepolia 0.26
     EASContractAddress: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e', // Sepolia v0.26
-    schemaUID: '0xc5ce9602c622c03d254a749d755c619f558db67419bc98283fb5f7c9d582ec5f'
+    schemaUID: '0xd1a11316b53c1a3509a122f1b9a9994ea096468de475f165bb908507aaa36cd3'
   },
   'optimism-goerli': {
     schemaRegistryContractAddress: '0x7b24c7f8af365b4e308b6acb0a7dfc85d034cb3f',
@@ -125,8 +125,8 @@ export async function attest(input : AttestInput) {
 
 
   const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
-
   const signer = new ethers.Wallet(privateKey, provider)
+  
   const EASContractAddress = addresses[network].EASContractAddress
   if (!EASContractAddress) {
     throw new Error(`EASContractAddress is not available for network "${network}"`)
