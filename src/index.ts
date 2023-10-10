@@ -6,7 +6,14 @@ import { GithubApiClient } from './github/githubApiClient'
 
 export async function main() {
   try {
-    const {privateKey, gitApi, network, rpcUrl, _branch, _branches, allowedBranches}  = getCredentials();
+    console.log('Reading inputs...');
+    const privateKey = core.getInput('private-key', { required: true, trimWhitespace: true });
+    const gitApi = core.getInput('git-api', { required: true, trimWhitespace: true });
+    const network = core.getInput('network', { required: false, trimWhitespace: true }) || 'sepolia';
+    const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || exports.defaultRpcUrls[network];
+    const _branch = core.getInput('branch', { required: false, trimWhitespace: true }) || '';
+    const _branches = core.getMultilineInput('branches', { required: false, trimWhitespace: true }) || [];
+    const allowedBranches = (_branches === null || _branches === void 0 ? void 0 : _branches.length) ? _branches : [_branch];
 
     if (!privateKey) {
       throw new Error('private-key is required')

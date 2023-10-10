@@ -1,5 +1,4 @@
 import { GithubApiClient, IPullRequest } from '../github/githubApiClient';
-import { getCredentials } from '../config';
 import { attest } from '../attest';
 
 import * as dotenv from 'dotenv';
