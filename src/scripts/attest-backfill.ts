@@ -29,7 +29,7 @@ async function attestBackfill(completeRepositoryName: string, username?: string)
       privateKey: process.env.PRIVATE_KEY as string,
       network: process.env.NETWORK as string,
       rpcUrl: process.env.RPC as string,
-      repo: repository,
+      repo: completeRepositoryName,
       branch: pr.baseRefName,
       username: pr.author.login,
       pullRequestLink: pr.permalink,

@@ -55,7 +55,7 @@ function attestBackfill(completeRepositoryName, username) {
                     privateKey: process.env.PRIVATE_KEY,
                     network: process.env.NETWORK,
                     rpcUrl: process.env.RPC,
-                    repo: repository,
+                    repo: completeRepositoryName,
                     branch: pr.baseRefName,
                     username: pr.author.login,
                     pullRequestLink: pr.permalink,
