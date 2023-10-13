@@ -8,13 +8,13 @@ const addresses: any = {
     schemaUID: '0x47a1041b689b790b4d3fa58ae2289a1d903dcc5b4e00d14f941090b59d947971'
   },
   'sepolia': {
-    schemaRegistryContractAddress: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0', // Sepolia 0.26
+    schemaRegistryContractAddress: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0',
     EASContractAddress: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e', // Sepolia v0.26
     schemaUID: '0xd1a11316b53c1a3509a122f1b9a9994ea096468de475f165bb908507aaa36cd3'
   },
   'optimism-goerli': {
-    schemaRegistryContractAddress: '0x7b24c7f8af365b4e308b6acb0a7dfc85d034cb3f',
-    EASContractAddress: '0x1a5650d0ecbca349dd84bafa85790e3e6955eb84',
+    schemaRegistryContractAddress: '0x4200000000000000000000000000000000000020',
+    EASContractAddress: '0x4200000000000000000000000000000000000021',
     schemaUID: '0x47a1041b689b790b4d3fa58ae2289a1d903dcc5b4e00d14f941090b59d947971'
   },
   'optimism': {
