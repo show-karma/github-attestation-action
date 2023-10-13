@@ -15,7 +15,7 @@ const addresses: any = {
   'optimism-goerli': {
     schemaRegistryContractAddress: '0x4200000000000000000000000000000000000020',
     EASContractAddress: '0x4200000000000000000000000000000000000021',
-    schemaUID: '0x47a1041b689b790b4d3fa58ae2289a1d903dcc5b4e00d14f941090b59d947971'
+    schemaUID: '0x6bec7c9280879206b1d21f35b6a9cc2b58725ad75bd5eaf1bde519257401dc44'
   },
   'optimism': {
     schemaRegistryContractAddress: '0x4200000000000000000000000000000000000020',
