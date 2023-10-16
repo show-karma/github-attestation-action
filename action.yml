@@ -1,8 +1,7 @@
-name: 'Github PR Attestation Action'
+name: 'Karma Attestation Action'
 icon: 'check-circle'
 color: 'red'
 description: 'Karma Attestation After Merge PR'
-
 
 branding:
   icon: 'activity'
