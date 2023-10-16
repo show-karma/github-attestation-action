@@ -12,28 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.attest = exports.createSchema = void 0;
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const ethers_1 = require("ethers");
-const addresses = {
-    'mainnet': {
-        schemaRegistryContractAddress: '0xA7b39296258348C78294F95B872b282326A97BDF',
-        EASContractAddress: '0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587',
-        schemaUID: '0x47a1041b689b790b4d3fa58ae2289a1d903dcc5b4e00d14f941090b59d947971'
-    },
-    'sepolia': {
-        schemaRegistryContractAddress: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0',
-        EASContractAddress: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
-        schemaUID: '0xd1a11316b53c1a3509a122f1b9a9994ea096468de475f165bb908507aaa36cd3'
-    },
-    'optimism-goerli': {
-        schemaRegistryContractAddress: '0x4200000000000000000000000000000000000020',
-        EASContractAddress: '0x4200000000000000000000000000000000000021',
-        schemaUID: '0x6bec7c9280879206b1d21f35b6a9cc2b58725ad75bd5eaf1bde519257401dc44'
-    },
-    'optimism': {
-        schemaRegistryContractAddress: '0x4200000000000000000000000000000000000020',
-        EASContractAddress: '0x4200000000000000000000000000000000000021',
-        schemaUID: '0x47a1041b689b790b4d3fa58ae2289a1d903dcc5b4e00d14f941090b59d947971'
-    }
-};
+const config_1 = require("./config");
 function createSchema(input) {
     return __awaiter(this, void 0, void 0, function* () {
         const { privateKey, network, rpcUrl } = input;
@@ -48,7 +27,7 @@ function createSchema(input) {
         }
         const provider = new ethers_1.ethers.providers.StaticJsonRpcProvider(rpcUrl);
         const signer = new ethers_1.ethers.Wallet(privateKey, provider);
-        const schemaRegistryContractAddress = addresses[network].schemaRegistryContractAddress;
+        const schemaRegistryContractAddress = config_1.defaultNetworks[network].easSchemaContract;
         if (!schemaRegistryContractAddress) {
             throw new Error(`schemaRegistryContractAddress is not available for network "${network}"`);
         }
@@ -101,13 +80,13 @@ function attest(input) {
         }
         const provider = new ethers_1.ethers.providers.StaticJsonRpcProvider(rpcUrl);
         const signer = new ethers_1.ethers.Wallet(privateKey, provider);
-        const EASContractAddress = addresses[network].EASContractAddress;
+        const EASContractAddress = config_1.defaultNetworks[network].easContract;
         if (!EASContractAddress) {
             throw new Error(`EASContractAddress is not available for network "${network}"`);
         }
         const eas = new eas_sdk_1.EAS(EASContractAddress);
         eas.connect(signer);
-        const schemaUID = addresses[network].schemaUID;
+        const schemaUID = config_1.defaultNetworks[network].schemaId;
         if (!schemaUID) {
             throw new Error(`schemaUID is not available for network "${network}"`);
         }

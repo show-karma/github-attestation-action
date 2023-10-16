@@ -1,26 +1,19 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { attest } from './attest'
-import { supportedNetworks, defaultRpcUrls, getCredentials } from './config'
-import { GithubApiClient } from './github/githubApiClient'
+import { defaultNetworks, supportedNetworks } from './config'
 
 export async function main() {
   try {
-    console.log('Reading inputs...');
     const privateKey = core.getInput('private-key', { required: true, trimWhitespace: true });
-    const gitApi = core.getInput('git-api', { required: true, trimWhitespace: true });
     const network = core.getInput('network', { required: false, trimWhitespace: true }) || 'sepolia';
-    const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || exports.defaultRpcUrls[network];
+    const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || defaultNetworks[network].rpc;
     const _branch = core.getInput('branch', { required: false, trimWhitespace: true }) || '';
     const _branches = core.getMultilineInput('branches', { required: false, trimWhitespace: true }) || [];
     const allowedBranches = (_branches === null || _branches === void 0 ? void 0 : _branches.length) ? _branches : [_branch];
 
     if (!privateKey) {
       throw new Error('private-key is required')
-    }
-
-    if (!gitApi) {
-      throw new Error('gitApi is required')
     }
 
     if (!network) {
@@ -41,6 +34,7 @@ export async function main() {
     const username = github?.context?.payload?.pull_request?.user?.login
     const pullRequestLink = github?.context?.payload?.pull_request?.html_url
     const pullRequestName = github?.context?.payload?.pull_request?.title || github?.context?.payload?.pull_request?.body || 'Name not found'
+    const pullRequestCount = github?.context?.payload?.pull_request?.number;
 
 
     if (!repo) {
@@ -79,10 +73,6 @@ export async function main() {
       console.log('event is not a pull request merge, skipping attestation.')
       return
     }
-
-      const githubApiClient = new GithubApiClient(gitApi);
-      const [owner, repository] = repo?.split('/');
-      const pullRequestCount  = ( await githubApiClient.mergedPRsByAuthor(owner, repository, username)).length || 0
 
     if (!pullRequestCount) {
       console.log('pullRequestCount is not available, skipping attestation.')

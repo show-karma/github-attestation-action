@@ -9,18 +9,12 @@ inputs:
   network:
     description: 'The ethereum network to use. Options are: "sepolia"'
     required: true
-  rpc-url:
-    description: 'The RPC URL to use.'
-    required: false
   branch:
     description: 'The main branch to trigger attestations on when PR is merged.'
     required: false
   branches:
     description: 'A list of main branches'
     required: false
-  git-api:
-    description: 'Github API Key'
-    required: true
 outputs:
   hash:
     description: 'Transaction hash of the attestation submission.'
