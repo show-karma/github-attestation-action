@@ -1,24 +1,31 @@
 import axios, { AxiosInstance } from "axios";
 import { queryGetMergedPRsByAuthor } from "./query";
 
-
-
+export interface IPullRequest {
+  id: string;
+  title: string;
+  permalink: string;
+  baseRefName: string;
+  author: {
+    login: string;
+  }
+}
 export class GithubApiClient {
   private client: AxiosInstance;
   
-  constructor(gitApi: string) {
+  constructor(gitApi?: string) {
     this.client = axios.create({
       baseURL: "https://api.github.com/graphql",
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${gitApi}`
+        'Authorization': `Bearer ${gitApi || process.env.GITHUB_API_KEY}`
       }
     });
   }
 
 
-  async countMergedPRsByAuthor(owner: string, repository: string, author: string) {
-    const uniqueMergedPRs = new Set();
+  async mergedPRsByAuthor(owner: string, repository: string, author?: string): Promise<IPullRequest[]> {
+    const uniqueMergedPRs = new Set<IPullRequest>();
   
     try {
       let after = null;
@@ -26,14 +33,15 @@ export class GithubApiClient {
       while (true) {
         const query = queryGetMergedPRsByAuthor(owner, repository, after);
         const response = await this.client.post('', { query });
-  
-        const filteredPRs = response.data.data?.repository?.pullRequests?.nodes?.filter((pr: { author: { login: string; }; }) => pr.author.login.toLowerCase() === author.toLowerCase());
+        const prS =  response.data.data?.repository?.pullRequests?.nodes || [];
+
+        const filteredPRs = !author ? prS : prS?.filter((pr: { author: { login: string; }; }) => pr.author.login.toLowerCase() === author.toLowerCase());
   
         if (!filteredPRs) {
           break;
         }
   
-        filteredPRs.forEach((pr: { id: string; }) => uniqueMergedPRs.add(pr.id));
+        filteredPRs.forEach((pr: IPullRequest) => uniqueMergedPRs.add(pr));
   
         after = response.data.data.repository.pullRequests.pageInfo.endCursor;
   
@@ -45,6 +53,6 @@ export class GithubApiClient {
       console.log('err: ', err);
     }
   
-    return uniqueMergedPRs.size;
+    return [...uniqueMergedPRs];
   }
 }

@@ -12,10 +12,6 @@
 
 **Required** The ethereum network to use. Default `"sepolia"`, Options are `"mainnet"`, `"sepolia"`, `"optimism"`, `"optimism-goerli"`.
 
-### `rpc-url`
-
-The RPC URL to use. A default one will be used if not specified.
-
 ### `branch`
 
 The main branch to trigger attestations on when PR is merged. Default `"main"`
@@ -47,8 +43,6 @@ jobs:
         uses: show-karma/github-attestation-action@master
         with:
           private-key: ${{ secrets.PRIVATE_KEY }}
-          rpc-url: ${{ secrets.RPC_URL }}
-          git-api: ${{ secrets.GIT_API_KEY }}
           network: sepolia
           branch: master
 ```

@@ -32,28 +32,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.main = void 0;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const attest_1 = require("./attest");
 const config_1 = require("./config");
-const githubApiClient_1 = require("./github/githubApiClient");
 function main() {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            console.log('Reading inputs...');
             const privateKey = core.getInput('private-key', { required: true, trimWhitespace: true });
-            const gitApi = core.getInput('git-api', { required: true, trimWhitespace: true });
             const network = core.getInput('network', { required: false, trimWhitespace: true }) || 'sepolia';
-            const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || config_1.defaultRpcUrls[network];
+            const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || config_1.defaultNetworks[network].rpc;
             const _branch = core.getInput('branch', { required: false, trimWhitespace: true }) || '';
             const _branches = core.getMultilineInput('branches', { required: false, trimWhitespace: true }) || [];
             const allowedBranches = (_branches === null || _branches === void 0 ? void 0 : _branches.length) ? _branches : [_branch];
             if (!privateKey) {
                 throw new Error('private-key is required');
-            }
-            if (!gitApi) {
-                throw new Error('gitApi is required');
             }
             if (!network) {
                 throw new Error('network is required');
@@ -69,6 +64,7 @@ function main() {
             const username = (_j = (_h = (_g = (_f = github === null || github === void 0 ? void 0 : github.context) === null || _f === void 0 ? void 0 : _f.payload) === null || _g === void 0 ? void 0 : _g.pull_request) === null || _h === void 0 ? void 0 : _h.user) === null || _j === void 0 ? void 0 : _j.login;
             const pullRequestLink = (_m = (_l = (_k = github === null || github === void 0 ? void 0 : github.context) === null || _k === void 0 ? void 0 : _k.payload) === null || _l === void 0 ? void 0 : _l.pull_request) === null || _m === void 0 ? void 0 : _m.html_url;
             const pullRequestName = ((_q = (_p = (_o = github === null || github === void 0 ? void 0 : github.context) === null || _o === void 0 ? void 0 : _o.payload) === null || _p === void 0 ? void 0 : _p.pull_request) === null || _q === void 0 ? void 0 : _q.title) || ((_t = (_s = (_r = github === null || github === void 0 ? void 0 : github.context) === null || _r === void 0 ? void 0 : _r.payload) === null || _s === void 0 ? void 0 : _s.pull_request) === null || _t === void 0 ? void 0 : _t.body) || 'Name not found';
+            const pullRequestCount = (_w = (_v = (_u = github === null || github === void 0 ? void 0 : github.context) === null || _u === void 0 ? void 0 : _u.payload) === null || _v === void 0 ? void 0 : _v.pull_request) === null || _w === void 0 ? void 0 : _w.number;
             if (!repo) {
                 console.log('repo is not available, skipping attestation.');
                 return;
@@ -98,9 +94,6 @@ function main() {
                 console.log('event is not a pull request merge, skipping attestation.');
                 return;
             }
-            const githubApiClient = new githubApiClient_1.GithubApiClient(gitApi);
-            const [owner, repository] = repo === null || repo === void 0 ? void 0 : repo.split('/');
-            const pullRequestCount = yield githubApiClient.countMergedPRsByAuthor(owner, repository, username);
             if (!pullRequestCount) {
                 console.log('pullRequestCount is not available, skipping attestation.');
                 return;
@@ -140,4 +133,5 @@ function main() {
         }
     });
 }
+exports.main = main;
 main().catch(error => core.setFailed(error.message));
