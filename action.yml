@@ -1,4 +1,4 @@
-name: 'Karma Attestation Action'
+name: 'Karma Attestation'
 icon: 'check-circle'
 color: 'red'
 description: 'Karma Attestation After Merge PR'
