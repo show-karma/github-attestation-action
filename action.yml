@@ -1,7 +1,13 @@
 name: 'Github PR Attestation Action'
 icon: 'check-circle'
 color: 'red'
-description: 'C'
+description: 'Karma Attestation After Merge PR'
+
+
+branding:
+  icon: 'activity'
+  color: 'green'      
+
 inputs:
   private-key:
     description: 'The private key to use for signing and submitting attestation transactions.'
