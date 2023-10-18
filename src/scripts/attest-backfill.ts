@@ -22,8 +22,6 @@ async function attestBackfill(completeRepositoryName: string, username?: string)
     if (!allowedBranches.includes(pr.baseRefName))
       continue
 
-    const prCount  = +(pr.permalink.split('/').pop() || 0);
-
     try{
     const { hash, uid } = await attest({
       privateKey: process.env.PRIVATE_KEY as string,
@@ -33,8 +31,7 @@ async function attestBackfill(completeRepositoryName: string, username?: string)
       branch: pr.baseRefName,
       username: pr.author.login,
       pullRequestLink: pr.permalink,
-      pullRequestName: pr.title,
-      pullRequestCount: prCount
+      pullRequestName: pr.title
     })
 
     console.log('Transaction hash:', hash)
