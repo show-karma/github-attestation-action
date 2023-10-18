@@ -17,7 +17,6 @@ type AttestInput = {
   username: string
   pullRequestLink: string
   pullRequestName: string
-  pullRequestCount: number
 }
 
 export async function createSchema(input: CreateSchemaInput) {
@@ -45,7 +44,7 @@ export async function createSchema(input: CreateSchemaInput) {
   const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress)
   schemaRegistry.connect(signer)
 
-  const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 pullRequestCount'
+  const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink'
    const resolverAddress = '0x0000000000000000000000000000000000000000'
   const revocable = true
 
@@ -63,7 +62,7 @@ export async function createSchema(input: CreateSchemaInput) {
 }
 
 export async function attest(input : AttestInput) {
-  const { privateKey, network, rpcUrl, repo, branch, username, pullRequestName, pullRequestLink, pullRequestCount } = input
+  const { privateKey, network, rpcUrl, repo, branch, username, pullRequestName, pullRequestLink } = input
 
   if (!privateKey) {
     throw new Error('privateKey is required')
@@ -97,10 +96,6 @@ export async function attest(input : AttestInput) {
     throw new Error('pullRequestLink is required')
   }
 
-  if (!pullRequestCount) {
-    throw new Error('pullRequestCount is required')
-  }
-
 
   const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
   const signer = new ethers.Wallet(privateKey, provider)
@@ -118,14 +113,13 @@ export async function attest(input : AttestInput) {
   }
 
   // Initialize SchemaEncoder with the schema string
-  const schemaEncoder = new SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 pullRequestCount')
+  const schemaEncoder = new SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink')
   const encodedData = schemaEncoder.encodeData([
     { name: 'username', value: username, type: 'string' },
     { name: 'repository', value: repo, type: 'string' },
     { name: 'branch', value: branch, type: 'string' },
     { name: 'pullRequestName', value: pullRequestName, type: 'string' },
-    { name: 'pullRequestLink', value: pullRequestLink, type: 'string' },
-    { name: 'pullRequestCount', value: pullRequestCount, type: 'uint256' },
+    { name: 'pullRequestLink', value: pullRequestLink, type: 'string' }
   ])
 
   const res = await eas.attest({
@@ -169,9 +163,7 @@ if (require.main === module) {
         repo: 'example',
         branch: 'main',
         pullRequestLink: 'www.github.com',
-        pullRequestName: 'github test',
-        pullRequestCount: 1
-        
+        pullRequestName: 'github test',        
       } as any)
       console.log('result:', result)
     }

@@ -34,8 +34,6 @@ export async function main() {
     const username = github?.context?.payload?.pull_request?.user?.login
     const pullRequestLink = github?.context?.payload?.pull_request?.html_url
     const pullRequestName = github?.context?.payload?.pull_request?.title || github?.context?.payload?.pull_request?.body || 'Name not found'
-    const pullRequestCount = github?.context?.payload?.pull_request?.number;
-
 
     if (!repo) {
       console.log('repo is not available, skipping attestation.')
@@ -74,10 +72,7 @@ export async function main() {
       return
     }
 
-    if (!pullRequestCount) {
-      console.log('pullRequestCount is not available, skipping attestation.')
-      return
-    }
+
 
     console.log('Inputs:', {
       allowedBranches,
@@ -87,8 +82,7 @@ export async function main() {
       branch,
       username,
       pullRequestLink,
-      pullRequestName,
-      pullRequestCount
+      pullRequestName
     })
 
     const { hash, uid } = await attest({
@@ -99,8 +93,7 @@ export async function main() {
       branch,
       username,
       pullRequestLink,
-      pullRequestName,
-      pullRequestCount
+      pullRequestName
     })
 
     console.log('Transaction hash:', hash)

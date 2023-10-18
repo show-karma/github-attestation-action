@@ -33,7 +33,7 @@ function createSchema(input) {
         }
         const schemaRegistry = new eas_sdk_1.SchemaRegistry(schemaRegistryContractAddress);
         schemaRegistry.connect(signer);
-        const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 pullRequestCount';
+        const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink';
         const resolverAddress = '0x0000000000000000000000000000000000000000';
         const revocable = true;
         const tx = yield schemaRegistry.register({
@@ -50,7 +50,7 @@ function createSchema(input) {
 exports.createSchema = createSchema;
 function attest(input) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { privateKey, network, rpcUrl, repo, branch, username, pullRequestName, pullRequestLink, pullRequestCount } = input;
+        const { privateKey, network, rpcUrl, repo, branch, username, pullRequestName, pullRequestLink } = input;
         if (!privateKey) {
             throw new Error('privateKey is required');
         }
@@ -75,9 +75,6 @@ function attest(input) {
         if (!pullRequestLink) {
             throw new Error('pullRequestLink is required');
         }
-        if (!pullRequestCount) {
-            throw new Error('pullRequestCount is required');
-        }
         const provider = new ethers_1.ethers.providers.StaticJsonRpcProvider(rpcUrl);
         const signer = new ethers_1.ethers.Wallet(privateKey, provider);
         const EASContractAddress = config_1.defaultNetworks[network].easContract;
@@ -91,14 +88,13 @@ function attest(input) {
             throw new Error(`schemaUID is not available for network "${network}"`);
         }
         // Initialize SchemaEncoder with the schema string
-        const schemaEncoder = new eas_sdk_1.SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 pullRequestCount');
+        const schemaEncoder = new eas_sdk_1.SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink');
         const encodedData = schemaEncoder.encodeData([
             { name: 'username', value: username, type: 'string' },
             { name: 'repository', value: repo, type: 'string' },
             { name: 'branch', value: branch, type: 'string' },
             { name: 'pullRequestName', value: pullRequestName, type: 'string' },
-            { name: 'pullRequestLink', value: pullRequestLink, type: 'string' },
-            { name: 'pullRequestCount', value: pullRequestCount, type: 'uint256' },
+            { name: 'pullRequestLink', value: pullRequestLink, type: 'string' }
         ]);
         const res = yield eas.attest({
             schema: schemaUID,
@@ -140,7 +136,6 @@ if (require.main === module) {
                     branch: 'main',
                     pullRequestLink: 'www.github.com',
                     pullRequestName: 'github test',
-                    pullRequestCount: 1
                 });
                 console.log('result:', result);
             }

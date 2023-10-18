@@ -49,7 +49,6 @@ function attestBackfill(completeRepositoryName, username) {
         for (const pr of pullRequests) {
             if (!allowedBranches.includes(pr.baseRefName))
                 continue;
-            const prCount = +(pr.permalink.split('/').pop() || 0);
             try {
                 const { hash, uid } = yield (0, attest_1.attest)({
                     privateKey: process.env.PRIVATE_KEY,
@@ -59,8 +58,7 @@ function attestBackfill(completeRepositoryName, username) {
                     branch: pr.baseRefName,
                     username: pr.author.login,
                     pullRequestLink: pr.permalink,
-                    pullRequestName: pr.title,
-                    pullRequestCount: prCount
+                    pullRequestName: pr.title
                 });
                 console.log('Transaction hash:', hash);
                 console.log('New attestation UID:', uid);
