@@ -90,7 +90,7 @@ function attest(input) {
         // Initialize SchemaEncoder with the schema string
         const schemaEncoder = new eas_sdk_1.SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink');
         const encodedData = schemaEncoder.encodeData([
-            { name: 'username', value: username, type: 'string' },
+            { name: 'username', value: username.toLowerCase(), type: 'string' },
             { name: 'repository', value: repo, type: 'string' },
             { name: 'branch', value: branch, type: 'string' },
             { name: 'pullRequestName', value: pullRequestName, type: 'string' },
