@@ -19,7 +19,7 @@ async function attestBackfill(completeRepositoryName: string, username?: string)
 
   
   for(const pr of pullRequests){
-    if (!allowedBranches.includes(pr.baseRefName))
+    if (allowedBranches.length && !allowedBranches.includes(pr.baseRefName))
       continue
 
     try{

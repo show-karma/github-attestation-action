@@ -47,7 +47,7 @@ function attestBackfill(completeRepositoryName, username) {
             console.log("any PR was found");
         }
         for (const pr of pullRequests) {
-            if (!allowedBranches.includes(pr.baseRefName))
+            if (allowedBranches.length && !allowedBranches.includes(pr.baseRefName))
                 continue;
             try {
                 const { hash, uid } = yield (0, attest_1.attest)({
