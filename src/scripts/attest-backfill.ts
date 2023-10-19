@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 async function attestBackfill(completeRepositoryName: string, username?: string) {
-  const allowedBranches = ["main"] || [];
+  const allowedBranches = process.env.ALLOWED_BRANCHES ? process.env.ALLOWED_BRANCHES.split(',') : [];
 
   const githubApiClient = new GithubApiClient(process.env.GITHUB_API_KEY);
   const [owner, repository] = completeRepositoryName?.split('/');
