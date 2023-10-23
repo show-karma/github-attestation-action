@@ -11,6 +11,8 @@ const queryGetMergedPRsByAuthor = (owner, repository, after) => {
           title,
           permalink
           baseRefName
+          deletions
+          additions
           author {
             login
           }

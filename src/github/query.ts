@@ -8,6 +8,8 @@ export const queryGetMergedPRsByAuthor = (owner: string, repository: string, aft
           title,
           permalink
           baseRefName
+          deletions
+          additions
           author {
             login
           }
