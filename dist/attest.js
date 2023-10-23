@@ -33,7 +33,7 @@ function createSchema(input) {
         }
         const schemaRegistry = new eas_sdk_1.SchemaRegistry(schemaRegistryContractAddress);
         schemaRegistry.connect(signer);
-        const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink, uint256 additions, uint256 deletions';
+        const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 additions,uint256 deletions';
         const resolverAddress = '0x0000000000000000000000000000000000000000';
         const revocable = true;
         const tx = yield schemaRegistry.register({
@@ -94,7 +94,7 @@ function attest(input) {
             throw new Error(`schemaUID is not available for network "${network}"`);
         }
         // Initialize SchemaEncoder with the schema string
-        const schemaEncoder = new eas_sdk_1.SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink, uint256 additions, uint256 deletions');
+        const schemaEncoder = new eas_sdk_1.SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 additions,uint256 deletions');
         const encodedData = schemaEncoder.encodeData([
             { name: 'username', value: username.toLowerCase(), type: 'string' },
             { name: 'repository', value: repo, type: 'string' },
@@ -144,6 +144,8 @@ if (require.main === module) {
                     branch: 'main',
                     pullRequestLink: 'www.github.com',
                     pullRequestName: 'github test',
+                    additions: 0,
+                    deletions: 0
                 });
                 console.log('result:', result);
             }

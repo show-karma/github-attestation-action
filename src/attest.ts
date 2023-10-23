@@ -46,7 +46,7 @@ export async function createSchema(input: CreateSchemaInput) {
   const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress)
   schemaRegistry.connect(signer)
 
-  const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink, uint256 additions, uint256 deletions'
+  const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 additions,uint256 deletions'
    const resolverAddress = '0x0000000000000000000000000000000000000000'
   const revocable = true
 
@@ -123,7 +123,9 @@ export async function attest(input : AttestInput) {
   }
 
   // Initialize SchemaEncoder with the schema string
-  const schemaEncoder = new SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink, uint256 additions, uint256 deletions')
+  const schemaEncoder = new SchemaEncoder(
+    'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 additions,uint256 deletions'
+    )
   const encodedData = schemaEncoder.encodeData([
     { name: 'username', value: username.toLowerCase(), type: 'string' },
     { name: 'repository', value: repo, type: 'string' },
@@ -175,7 +177,9 @@ if (require.main === module) {
         repo: 'example',
         branch: 'main',
         pullRequestLink: 'www.github.com',
-        pullRequestName: 'github test',        
+        pullRequestName: 'github test',   
+        additions: 0,   
+        deletions: 0   
       } as any)
       console.log('result:', result)
     }
