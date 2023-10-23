@@ -31,7 +31,9 @@ async function attestBackfill(completeRepositoryName: string, username?: string)
       branch: pr.baseRefName,
       username: pr.author.login,
       pullRequestLink: pr.permalink,
-      pullRequestName: pr.title
+      pullRequestName: pr.title,
+      additions: pr.additions,
+      deletions: pr.deletions,
     })
 
     console.log('Transaction hash:', hash)

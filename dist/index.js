@@ -118,7 +118,9 @@ function main() {
                 branch,
                 username,
                 pullRequestLink,
-                pullRequestName
+                pullRequestName,
+                additions,
+                deletions
             });
             console.log('Transaction hash:', hash);
             console.log('New attestation UID:', uid);
