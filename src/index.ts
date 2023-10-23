@@ -4,7 +4,7 @@ import { attest } from './attest'
 import { defaultNetworks, supportedNetworks } from './config'
 import { exec } from 'child_process';
 
-function calculateLinesAddedRemoved(baseBranch: string): Promise<{
+async function calculateLinesAddedRemoved(baseBranch: string): Promise<{
   linesAdded: any,
   linesRemoved: any
 }> {
