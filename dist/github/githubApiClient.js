@@ -52,19 +52,14 @@ class GithubApiClient {
             return [...uniqueMergedPRs];
         });
     }
-    findPrByRepoAndAuthor(owner, repository, title) {
-        var _a, _b, _c;
+    getAdditionsAndDelegationsOfPr(owner, repository, author, title) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const query = (0, query_1.queryPrByAuthor)(owner, repository, title);
-                const response = yield this.client.post('', { query });
-                const pr = ((_c = (_b = (_a = response.data.data) === null || _a === void 0 ? void 0 : _a.repository) === null || _b === void 0 ? void 0 : _b.pullRequests) === null || _c === void 0 ? void 0 : _c.nodes) || [];
-                return pr;
-            }
-            catch (err) {
-                console.log('err: ', err);
-                return null;
-            }
+            const allPrs = yield this.mergedPRsByAuthor(owner, repository, author);
+            const pr = allPrs.find(p => p.title.toLowerCase() === title.toLowerCase());
+            return {
+                additions: (pr === null || pr === void 0 ? void 0 : pr.additions) || 0,
+                deletions: (pr === null || pr === void 0 ? void 0 : pr.deletions) || 0
+            };
         });
     }
 }
