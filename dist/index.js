@@ -50,11 +50,13 @@ function calculateLinesAddedRemoved(baseBranch) {
         console.log({ linesRemovedCommand });
         return new Promise((resolve, reject) => {
             (0, child_process_1.exec)(linesAddedCommand, (error, stdout, stderr) => {
+                console.log("linesAddedCommand", stdout);
                 if (error) {
                     reject(`Error calculating lines added: ${error}`);
                 }
                 const linesAdded = parseInt(stdout);
                 (0, child_process_1.exec)(linesRemovedCommand, (error, stdout, stderr) => {
+                    console.log("linesRemovedCommand", stdout);
                     if (error) {
                         reject(`Error calculating lines removed: ${error}`);
                     }

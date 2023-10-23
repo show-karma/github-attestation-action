@@ -21,12 +21,14 @@ async function calculateLinesAddedRemoved(baseBranch: string): Promise<{
 
   return new Promise((resolve, reject) => {
     exec(linesAddedCommand, (error, stdout, stderr) => {
+      console.log("linesAddedCommand", stdout);
       if (error) {
         reject(`Error calculating lines added: ${error}`);
       }
       const linesAdded = parseInt(stdout);
       
       exec(linesRemovedCommand, (error, stdout, stderr) => {
+        console.log("linesRemovedCommand", stdout);
         if (error) {
           reject(`Error calculating lines removed: ${error}`);
         }
