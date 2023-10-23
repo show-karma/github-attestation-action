@@ -5,17 +5,19 @@ import { defaultNetworks, supportedNetworks } from './config'
 import { exec } from 'child_process';
 
 function calculateLinesAddedRemoved(baseBranch: string): Promise<{
-  linesAdded: number,
-  linesRemoved: number
+  linesAdded: any,
+  linesRemoved: any
 }> {
   // Replace 'HEAD' with the appropriate reference to the current branch, e.g., 'refs/heads/main'.
   const currentBranch = 'HEAD';
 
   // Command to calculate lines added
   const linesAddedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$1} END {print s}'`;
+  console.log({linesAddedCommand})
 
   // Command to calculate lines removed
   const linesRemovedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$2} END {print s}'`;
+  console.log({linesRemovedCommand})
 
   return new Promise((resolve, reject) => {
     exec(linesAddedCommand, (error, stdout, stderr) => {
