@@ -102,7 +102,6 @@ function attest(input) {
             { name: 'pullRequestName', value: pullRequestName, type: 'string' },
             { name: 'pullRequestLink', value: pullRequestLink, type: 'string' },
             { name: 'additions', value: 0, type: 'uint256' },
-            { name: 'deletions', value: 0, type: 'uint256' }
         ]);
         const res = yield eas.attest({
             schema: schemaUID,

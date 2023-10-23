@@ -133,7 +133,6 @@ export async function attest(input : AttestInput) {
     { name: 'pullRequestName', value: pullRequestName, type: 'string' },
     { name: 'pullRequestLink', value: pullRequestLink, type: 'string' },
     { name: 'additions', value: 0, type: 'uint256' },
-    { name: 'deletions', value: 0 , type: 'uint256' }
   ])
 
   const res = await eas.attest({
