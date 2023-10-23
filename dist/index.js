@@ -108,9 +108,7 @@ function main() {
                 pullRequestLink,
                 pullRequestName,
                 additions: additions,
-                deletions: additions,
-                bigIntAdditions: BigInt(additions),
-                bigIntdeletions: BigInt(deletions)
+                deletions: deletions,
             });
             const { hash, uid } = yield (0, attest_1.attest)({
                 privateKey,
