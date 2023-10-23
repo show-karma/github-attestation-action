@@ -90,8 +90,10 @@ export async function main() {
       username,
       pullRequestLink,
       pullRequestName,
-      additions: BigInt(additions),
-      deletions: BigInt(deletions)
+      additions: additions,
+      deletions: additions,
+      bigIntAdditions: BigInt(additions),
+      bigIntdeletions: BigInt(deletions)
     })
 
     const { hash, uid } = await attest({
