@@ -2,21 +2,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { attest } from './attest'
 import { defaultNetworks, supportedNetworks } from './config'
-import { execSync  } from 'child_process';
-
-
-type PullRequestLines = {
-  additions: string;
-  deletions: string;
-};
-
-function getNumberAddedAndRemovedLines(pullRequestNumber: number): PullRequestLines {
-  const output = execSync(`gh pr view --json ${pullRequestNumber} | jq '.stats.additions, .stats.deletions'`);
-  const outputString = output.toString();
-  const [additions, deletions] = outputString.split('\n');
-
-  return { additions, deletions };
-}
+import { GithubApiClient } from './github/githubApiClient';
 
 
 export async function main() {
@@ -24,6 +10,7 @@ export async function main() {
     const privateKey = core.getInput('private-key', { required: true, trimWhitespace: true });
     const network = core.getInput('network', { required: false, trimWhitespace: true }) || 'sepolia';
     const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || defaultNetworks[network].rpc;
+    const gitApiKey = core.getInput('git-api', { required: false, trimWhitespace: true });
     const _branch = core.getInput('branch', { required: false, trimWhitespace: true }) || '';
     const _branches = core.getMultilineInput('branches', { required: false, trimWhitespace: true }) || [];
     const allowedBranches = (_branches === null || _branches === void 0 ? void 0 : _branches.length) ? _branches : [_branch];
@@ -44,14 +31,19 @@ export async function main() {
       throw new Error(`network "${network}" is not supported`)
     }
 
-    const repo = github?.context?.payload?.repository?.full_name
+    const repo = github?.context?.payload?.repository?.full_name || ''
     const branch = github?.context?.ref?.replace('refs/heads/', '')
     const username = github?.context?.payload?.pull_request?.user?.login
     const pullRequestLink = github?.context?.payload?.pull_request?.html_url
     const pullRequestName = github?.context?.payload?.pull_request?.title || github?.context?.payload?.pull_request?.body || 'Name not found'
-    const prNumber = github?.context?.payload?.pull_request?.number || 0;
-    const pullRequestLines: PullRequestLines = getNumberAddedAndRemovedLines(+prNumber);
-    const { additions, deletions } = pullRequestLines;
+    const githubApiClient = new GithubApiClient(gitApiKey);
+
+    const [owner, repository] = repo.split('/');
+    const pullRequestCount  = await githubApiClient.findPrByRepoAndAuthor(owner, repository, pullRequestName);
+
+    const additions = pullRequestCount?.additions || 0;
+    const deletions = pullRequestCount?.deletions || 0;
+
 
     if (!repo) {
       console.log('repo is not available, skipping attestation.')
@@ -103,7 +95,6 @@ export async function main() {
       pullRequestName,
       additions,
       deletions
-
     })
 
     const { hash, uid } = await attest({

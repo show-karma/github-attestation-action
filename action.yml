@@ -14,6 +14,9 @@ inputs:
   network:
     description: 'The ethereum network to use. Options are: "sepolia"'
     required: true
+  git-api:
+    description: 'Github api key'
+    required: true
   branch:
     description: 'The main branch to trigger attestations on when PR is merged.'
     required: false
