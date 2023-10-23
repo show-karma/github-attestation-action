@@ -38,7 +38,7 @@ const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 function attestBackfill(completeRepositoryName, username) {
     return __awaiter(this, void 0, void 0, function* () {
-        const allowedBranches = ["main"] || [];
+        const allowedBranches = process.env.ALLOWED_BRANCHES ? process.env.ALLOWED_BRANCHES.split(',') : [];
         const githubApiClient = new githubApiClient_1.GithubApiClient(process.env.GITHUB_API_KEY);
         const [owner, repository] = completeRepositoryName === null || completeRepositoryName === void 0 ? void 0 : completeRepositoryName.split('/');
         const pullRequests = yield githubApiClient.mergedPRsByAuthor(owner, repository, username);

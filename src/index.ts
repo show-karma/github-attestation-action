@@ -2,6 +2,39 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { attest } from './attest'
 import { defaultNetworks, supportedNetworks } from './config'
+import { exec } from 'child_process';
+
+function calculateLinesAddedRemoved(baseBranch: string): Promise<{
+  linesAdded: number,
+  linesRemoved: number
+}> {
+  // Replace 'HEAD' with the appropriate reference to the current branch, e.g., 'refs/heads/main'.
+  const currentBranch = 'HEAD';
+
+  // Command to calculate lines added
+  const linesAddedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$1} END {print s}'`;
+
+  // Command to calculate lines removed
+  const linesRemovedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$2} END {print s}'`;
+
+  return new Promise((resolve, reject) => {
+    exec(linesAddedCommand, (error, stdout, stderr) => {
+      if (error) {
+        reject(`Error calculating lines added: ${error}`);
+      }
+      const linesAdded = parseInt(stdout);
+      
+      exec(linesRemovedCommand, (error, stdout, stderr) => {
+        if (error) {
+          reject(`Error calculating lines removed: ${error}`);
+        }
+        const linesRemoved = parseInt(stdout);
+        resolve({ linesAdded, linesRemoved });
+      });
+    });
+  });
+}
+
 
 export async function main() {
   try {
@@ -28,12 +61,12 @@ export async function main() {
       throw new Error(`network "${network}" is not supported`)
     }
 
-
     const repo = github?.context?.payload?.repository?.full_name
     const branch = github?.context?.ref?.replace('refs/heads/', '')
     const username = github?.context?.payload?.pull_request?.user?.login
     const pullRequestLink = github?.context?.payload?.pull_request?.html_url
     const pullRequestName = github?.context?.payload?.pull_request?.title || github?.context?.payload?.pull_request?.body || 'Name not found'
+    const { linesAdded, linesRemoved } = await calculateLinesAddedRemoved(branch);
 
     if (!repo) {
       console.log('repo is not available, skipping attestation.')
@@ -82,7 +115,10 @@ export async function main() {
       branch,
       username,
       pullRequestLink,
-      pullRequestName
+      pullRequestName,
+      linesAdded,
+      linesRemoved
+
     })
 
     const { hash, uid } = await attest({

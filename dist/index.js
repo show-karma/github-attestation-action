@@ -37,6 +37,30 @@ const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const attest_1 = require("./attest");
 const config_1 = require("./config");
+const child_process_1 = require("child_process");
+function calculateLinesAddedRemoved(baseBranch) {
+    // Replace 'HEAD' with the appropriate reference to the current branch, e.g., 'refs/heads/main'.
+    const currentBranch = 'HEAD';
+    // Command to calculate lines added
+    const linesAddedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$1} END {print s}'`;
+    // Command to calculate lines removed
+    const linesRemovedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$2} END {print s}'`;
+    return new Promise((resolve, reject) => {
+        (0, child_process_1.exec)(linesAddedCommand, (error, stdout, stderr) => {
+            if (error) {
+                reject(`Error calculating lines added: ${error}`);
+            }
+            const linesAdded = parseInt(stdout);
+            (0, child_process_1.exec)(linesRemovedCommand, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error calculating lines removed: ${error}`);
+                }
+                const linesRemoved = parseInt(stdout);
+                resolve({ linesAdded, linesRemoved });
+            });
+        });
+    });
+}
 function main() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
     return __awaiter(this, void 0, void 0, function* () {
@@ -64,6 +88,7 @@ function main() {
             const username = (_j = (_h = (_g = (_f = github === null || github === void 0 ? void 0 : github.context) === null || _f === void 0 ? void 0 : _f.payload) === null || _g === void 0 ? void 0 : _g.pull_request) === null || _h === void 0 ? void 0 : _h.user) === null || _j === void 0 ? void 0 : _j.login;
             const pullRequestLink = (_m = (_l = (_k = github === null || github === void 0 ? void 0 : github.context) === null || _k === void 0 ? void 0 : _k.payload) === null || _l === void 0 ? void 0 : _l.pull_request) === null || _m === void 0 ? void 0 : _m.html_url;
             const pullRequestName = ((_q = (_p = (_o = github === null || github === void 0 ? void 0 : github.context) === null || _o === void 0 ? void 0 : _o.payload) === null || _p === void 0 ? void 0 : _p.pull_request) === null || _q === void 0 ? void 0 : _q.title) || ((_t = (_s = (_r = github === null || github === void 0 ? void 0 : github.context) === null || _r === void 0 ? void 0 : _r.payload) === null || _s === void 0 ? void 0 : _s.pull_request) === null || _t === void 0 ? void 0 : _t.body) || 'Name not found';
+            const { linesAdded, linesRemoved } = yield calculateLinesAddedRemoved(branch);
             if (!repo) {
                 console.log('repo is not available, skipping attestation.');
                 return;
@@ -101,7 +126,9 @@ function main() {
                 branch,
                 username,
                 pullRequestLink,
-                pullRequestName
+                pullRequestName,
+                linesAdded,
+                linesRemoved
             });
             const { hash, uid } = yield (0, attest_1.attest)({
                 privateKey,
