@@ -101,14 +101,14 @@ function attest(input) {
             { name: 'branch', value: branch, type: 'string' },
             { name: 'pullRequestName', value: pullRequestName, type: 'string' },
             { name: 'pullRequestLink', value: pullRequestLink, type: 'string' },
-            { name: 'additions', value: (additions || 0.1), type: 'uint256' },
-            { name: 'deletions', value: (deletions || 0.1), type: 'uint256' }
+            { name: 'additions', value: BigInt(additions), type: 'uint256' },
+            { name: 'deletions', value: BigInt(deletions), type: 'uint256' }
         ]);
         const res = yield eas.attest({
             schema: schemaUID,
             data: {
                 recipient: '0x0000000000000000000000000000000000000000',
-                expirationTime: 0,
+                expirationTime: BigInt(0),
                 revocable: true,
                 data: encodedData,
             },

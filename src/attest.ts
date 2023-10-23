@@ -44,7 +44,7 @@ export async function createSchema(input: CreateSchemaInput) {
     throw new Error(`schemaRegistryContractAddress is not available for network "${network}"`)
   }
   const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress)
-  schemaRegistry.connect(signer)
+  schemaRegistry.connect(signer as any)
 
   const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 additions,uint256 deletions'
    const resolverAddress = '0x0000000000000000000000000000000000000000'
@@ -115,7 +115,7 @@ export async function attest(input : AttestInput) {
     throw new Error(`EASContractAddress is not available for network "${network}"`)
   }
   const eas = new EAS(EASContractAddress)
-  eas.connect(signer)
+  eas.connect(signer as any)
 
   const schemaUID = defaultNetworks[network].schemaId
   if (!schemaUID) {
@@ -132,15 +132,15 @@ export async function attest(input : AttestInput) {
     { name: 'branch', value: branch, type: 'string' },
     { name: 'pullRequestName', value: pullRequestName, type: 'string' },
     { name: 'pullRequestLink', value: pullRequestLink, type: 'string' },
-    { name: 'additions', value: (additions || 0.1), type: 'uint256' },
-    { name: 'deletions', value: (deletions || 0.1), type: 'uint256' }
+    { name: 'additions', value: BigInt(additions), type: 'uint256' },
+    { name: 'deletions', value: BigInt(deletions) , type: 'uint256' }
   ])
 
   const res = await eas.attest({
     schema: schemaUID,
     data: {
       recipient: '0x0000000000000000000000000000000000000000',
-      expirationTime: 0,
+      expirationTime: BigInt(0),
       revocable: true,
       data: encodedData,
     },
