@@ -2,41 +2,20 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { attest } from './attest'
 import { defaultNetworks, supportedNetworks } from './config'
-import { exec } from 'child_process';
+import { execSync  } from 'child_process';
 
-async function calculateLinesAddedRemoved(baseBranch: string): Promise<{
-  linesAdded: any,
-  linesRemoved: any
-}> {
-  // Replace 'HEAD' with the appropriate reference to the current branch, e.g., 'refs/heads/main'.
-  const currentBranch = 'HEAD';
 
-  // Command to calculate lines added
-  const linesAddedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$1} END {print s}'`;
-  console.log({linesAddedCommand})
+type PullRequestLines = {
+  additions: string;
+  deletions: string;
+};
 
-  // Command to calculate lines removed
-  const linesRemovedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$2} END {print s}'`;
-  console.log({linesRemovedCommand})
+function getNumberAddedAndRemovedLines(pullRequestNumber: number): PullRequestLines {
+  const output = execSync(`gh pr view --json ${pullRequestNumber} | jq '.stats.additions, .stats.deletions'`);
+  const outputString = output.toString();
+  const [additions, deletions] = outputString.split('\n');
 
-  return new Promise((resolve, reject) => {
-    exec(linesAddedCommand, (error, stdout, stderr) => {
-      console.log("linesAddedCommand", stdout);
-      if (error) {
-        reject(`Error calculating lines added: ${error}`);
-      }
-      const linesAdded = parseInt(stdout);
-      
-      exec(linesRemovedCommand, (error, stdout, stderr) => {
-        console.log("linesRemovedCommand", stdout);
-        if (error) {
-          reject(`Error calculating lines removed: ${error}`);
-        }
-        const linesRemoved = parseInt(stdout);
-        resolve({ linesAdded, linesRemoved });
-      });
-    });
-  });
+  return { additions, deletions };
 }
 
 
@@ -70,7 +49,9 @@ export async function main() {
     const username = github?.context?.payload?.pull_request?.user?.login
     const pullRequestLink = github?.context?.payload?.pull_request?.html_url
     const pullRequestName = github?.context?.payload?.pull_request?.title || github?.context?.payload?.pull_request?.body || 'Name not found'
-    const { linesAdded, linesRemoved } = await calculateLinesAddedRemoved(branch);
+    const prNumber = github?.context?.payload?.pull_request?.number || 0;
+    const pullRequestLines: PullRequestLines = getNumberAddedAndRemovedLines(+prNumber);
+    const { additions, deletions } = pullRequestLines;
 
     if (!repo) {
       console.log('repo is not available, skipping attestation.')
@@ -120,8 +101,8 @@ export async function main() {
       username,
       pullRequestLink,
       pullRequestName,
-      linesAdded,
-      linesRemoved
+      additions,
+      deletions
 
     })
 
