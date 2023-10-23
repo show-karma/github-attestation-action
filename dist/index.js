@@ -39,24 +39,28 @@ const attest_1 = require("./attest");
 const config_1 = require("./config");
 const child_process_1 = require("child_process");
 function calculateLinesAddedRemoved(baseBranch) {
-    // Replace 'HEAD' with the appropriate reference to the current branch, e.g., 'refs/heads/main'.
-    const currentBranch = 'HEAD';
-    // Command to calculate lines added
-    const linesAddedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$1} END {print s}'`;
-    // Command to calculate lines removed
-    const linesRemovedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$2} END {print s}'`;
-    return new Promise((resolve, reject) => {
-        (0, child_process_1.exec)(linesAddedCommand, (error, stdout, stderr) => {
-            if (error) {
-                reject(`Error calculating lines added: ${error}`);
-            }
-            const linesAdded = parseInt(stdout);
-            (0, child_process_1.exec)(linesRemovedCommand, (error, stdout, stderr) => {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Replace 'HEAD' with the appropriate reference to the current branch, e.g., 'refs/heads/main'.
+        const currentBranch = 'HEAD';
+        // Command to calculate lines added
+        const linesAddedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$1} END {print s}'`;
+        console.log({ linesAddedCommand });
+        // Command to calculate lines removed
+        const linesRemovedCommand = `git diff --numstat ${baseBranch}...${currentBranch} | awk '{s+=$2} END {print s}'`;
+        console.log({ linesRemovedCommand });
+        return new Promise((resolve, reject) => {
+            (0, child_process_1.exec)(linesAddedCommand, (error, stdout, stderr) => {
                 if (error) {
-                    reject(`Error calculating lines removed: ${error}`);
+                    reject(`Error calculating lines added: ${error}`);
                 }
-                const linesRemoved = parseInt(stdout);
-                resolve({ linesAdded, linesRemoved });
+                const linesAdded = parseInt(stdout);
+                (0, child_process_1.exec)(linesRemovedCommand, (error, stdout, stderr) => {
+                    if (error) {
+                        reject(`Error calculating lines removed: ${error}`);
+                    }
+                    const linesRemoved = parseInt(stdout);
+                    resolve({ linesAdded, linesRemoved });
+                });
             });
         });
     });
