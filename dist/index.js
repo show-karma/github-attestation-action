@@ -68,7 +68,9 @@ function main() {
             const pullRequestName = ((_q = (_p = (_o = github === null || github === void 0 ? void 0 : github.context) === null || _o === void 0 ? void 0 : _o.payload) === null || _p === void 0 ? void 0 : _p.pull_request) === null || _q === void 0 ? void 0 : _q.title) || ((_t = (_s = (_r = github === null || github === void 0 ? void 0 : github.context) === null || _r === void 0 ? void 0 : _r.payload) === null || _s === void 0 ? void 0 : _s.pull_request) === null || _t === void 0 ? void 0 : _t.body) || 'Name not found';
             const githubApiClient = new githubApiClient_1.GithubApiClient(gitApiKey);
             const [owner, repository] = repo.split('/');
-            const { additions, deletions } = yield githubApiClient.getAdditionsAndDelegationsOfPr(owner, repository, username, pullRequestName);
+            // const {additions, deletions}  = await githubApiClient.getAdditionsAndDelegationsOfPr(owner, repository, username, pullRequestName);
+            const additions = "0";
+            const deletions = "0";
             if (!repo) {
                 console.log('repo is not available, skipping attestation.');
                 return;
@@ -107,8 +109,8 @@ function main() {
                 username,
                 pullRequestLink,
                 pullRequestName,
-                additions: additions,
-                deletions: deletions,
+                additions,
+                deletions,
             });
             const { hash, uid } = yield (0, attest_1.attest)({
                 privateKey,

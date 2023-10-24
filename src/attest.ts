@@ -17,8 +17,8 @@ type AttestInput = {
   username: string
   pullRequestLink: string
   pullRequestName: string
-  additions: number
-  deletions: number
+  additions: string
+  deletions: string
 }
 
 export async function createSchema(input: CreateSchemaInput) {
@@ -132,8 +132,8 @@ export async function attest(input : AttestInput) {
     { name: 'branch', value: branch, type: 'string' },
     { name: 'pullRequestName', value: pullRequestName, type: 'string' },
     { name: 'pullRequestLink', value: pullRequestLink, type: 'string' },
-    { name: 'additions', value: "0", type: 'uint256' },
-    { name: 'deletions', value: "0" , type: 'uint256' }
+    { name: 'additions', value: additions, type: 'uint256' },
+    { name: 'deletions', value: deletions , type: 'uint256' }
   ])
 
   const res = await eas.attest({

@@ -59,8 +59,8 @@ function attestBackfill(completeRepositoryName, username) {
                     username: pr.author.login,
                     pullRequestLink: pr.permalink,
                     pullRequestName: pr.title,
-                    additions: pr.additions,
-                    deletions: pr.deletions,
+                    additions: "0",
+                    deletions: "0",
                 });
                 console.log('Transaction hash:', hash);
                 console.log('New attestation UID:', uid);

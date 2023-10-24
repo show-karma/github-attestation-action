@@ -39,8 +39,10 @@ export async function main() {
     const githubApiClient = new GithubApiClient(gitApiKey);
 
     const [owner, repository] = repo.split('/');
-    const {additions, deletions}  = await githubApiClient.getAdditionsAndDelegationsOfPr(owner, repository, username, pullRequestName);
+    // const {additions, deletions}  = await githubApiClient.getAdditionsAndDelegationsOfPr(owner, repository, username, pullRequestName);
 
+    const additions = "0";
+    const deletions = "0";
 
     if (!repo) {
       console.log('repo is not available, skipping attestation.')
@@ -90,8 +92,8 @@ export async function main() {
       username,
       pullRequestLink,
       pullRequestName,
-      additions: additions,
-      deletions: deletions,
+      additions,
+      deletions,
     })
 
     const { hash, uid } = await attest({
