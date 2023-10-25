@@ -9,6 +9,7 @@ const queryGetMergedPRsByAuthor = (owner, repository, after) => {
         nodes {
           id,
           title,
+          number
           permalink
           baseRefName
           deletions

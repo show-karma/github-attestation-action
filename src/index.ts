@@ -39,7 +39,8 @@ export async function main() {
     const githubApiClient = new GithubApiClient(gitApiKey);
 
     const [owner, repository] = repo.split('/');
-    const {additions, deletions}  = await githubApiClient.getAdditionsAndDelegationsOfPr(owner, repository, username, pullRequestName);
+    const pullRequestNumber = github?.context?.payload?.pull_request?.number || 0;
+    const {additions, deletions}  = await githubApiClient.getAdditionsAndDelegationsOfPr(owner, repository, username, pullRequestNumber);
 
 
     if (!repo) {

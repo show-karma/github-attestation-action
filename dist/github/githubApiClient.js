@@ -52,10 +52,10 @@ class GithubApiClient {
             return [...uniqueMergedPRs];
         });
     }
-    getAdditionsAndDelegationsOfPr(owner, repository, author, title) {
+    getAdditionsAndDelegationsOfPr(owner, repository, author, pullRequestNumber) {
         return __awaiter(this, void 0, void 0, function* () {
             const allPrs = yield this.mergedPRsByAuthor(owner, repository, author);
-            const pr = allPrs.find(p => p.title.toLowerCase() === title.toLowerCase());
+            const pr = allPrs.find(p => +p.number === +pullRequestNumber);
             return {
                 additions: ((pr === null || pr === void 0 ? void 0 : pr.additions) || 0).toString(),
                 deletions: ((pr === null || pr === void 0 ? void 0 : pr.deletions) || 0).toString()
