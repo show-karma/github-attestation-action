@@ -58,14 +58,15 @@ export class GithubApiClient {
     return [...uniqueMergedPRs];
   }
 
-  async getAdditionsAndDelegationsOfPr(owner: string, repository: string, author: string,  title: string): Promise<{additions: number, deletions: number}> {
+  async getAdditionsAndDelegationsOfPr(owner: string, repository: string, author: string,  title: string):
+   Promise<{additions: string, deletions: string}> {
     const allPrs = await this.mergedPRsByAuthor(owner, repository, author);
 
     const pr = allPrs.find(p => p.title.toLowerCase() ===  title.toLowerCase());
 
     return {
-      additions: pr?.additions || 0,
-      deletions: pr?.deletions || 0
+      additions: (pr?.additions || 0).toString(),
+      deletions: (pr?.deletions || 0).toString()
     }
   }
 
