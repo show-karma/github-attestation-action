@@ -17,6 +17,8 @@ type AttestInput = {
   username: string
   pullRequestLink: string
   pullRequestName: string
+  additions: string
+  deletions: string
 }
 
 export async function createSchema(input: CreateSchemaInput) {
@@ -42,9 +44,9 @@ export async function createSchema(input: CreateSchemaInput) {
     throw new Error(`schemaRegistryContractAddress is not available for network "${network}"`)
   }
   const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress)
-  schemaRegistry.connect(signer)
+  schemaRegistry.connect(signer as any)
 
-  const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink'
+  const schema = 'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 additions,uint256 deletions'
    const resolverAddress = '0x0000000000000000000000000000000000000000'
   const revocable = true
 
@@ -62,7 +64,7 @@ export async function createSchema(input: CreateSchemaInput) {
 }
 
 export async function attest(input : AttestInput) {
-  const { privateKey, network, rpcUrl, repo, branch, username, pullRequestName, pullRequestLink } = input
+  const { privateKey, network, rpcUrl, repo, branch, username, pullRequestName, pullRequestLink, additions, deletions } = input
 
   if (!privateKey) {
     throw new Error('privateKey is required')
@@ -96,6 +98,14 @@ export async function attest(input : AttestInput) {
     throw new Error('pullRequestLink is required')
   }
 
+  if (!additions) {
+    throw new Error('additions is required')
+  }
+
+  if (!deletions) {
+    throw new Error('deletions is required')
+  }
+
 
   const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
   const signer = new ethers.Wallet(privateKey, provider)
@@ -105,7 +115,7 @@ export async function attest(input : AttestInput) {
     throw new Error(`EASContractAddress is not available for network "${network}"`)
   }
   const eas = new EAS(EASContractAddress)
-  eas.connect(signer)
+  eas.connect(signer as any)
 
   const schemaUID = defaultNetworks[network].schemaId
   if (!schemaUID) {
@@ -113,20 +123,24 @@ export async function attest(input : AttestInput) {
   }
 
   // Initialize SchemaEncoder with the schema string
-  const schemaEncoder = new SchemaEncoder('string username,string repository,string branch,string pullRequestName,string pullRequestLink')
+  const schemaEncoder = new SchemaEncoder(
+    'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 additions,uint256 deletions'
+    )
   const encodedData = schemaEncoder.encodeData([
     { name: 'username', value: username.toLowerCase(), type: 'string' },
     { name: 'repository', value: repo, type: 'string' },
     { name: 'branch', value: branch, type: 'string' },
     { name: 'pullRequestName', value: pullRequestName, type: 'string' },
-    { name: 'pullRequestLink', value: pullRequestLink, type: 'string' }
+    { name: 'pullRequestLink', value: pullRequestLink, type: 'string' },
+    { name: 'additions', value: additions, type: 'uint256' },
+    { name: 'deletions', value: deletions , type: 'uint256' }
   ])
 
   const res = await eas.attest({
     schema: schemaUID,
     data: {
       recipient: '0x0000000000000000000000000000000000000000',
-      expirationTime: 0,
+      expirationTime: BigInt(0),
       revocable: true,
       data: encodedData,
     },
@@ -163,7 +177,9 @@ if (require.main === module) {
         repo: 'example',
         branch: 'main',
         pullRequestLink: 'www.github.com',
-        pullRequestName: 'github test',        
+        pullRequestName: 'github test',   
+        additions: 0,   
+        deletions: 0   
       } as any)
       console.log('result:', result)
     }

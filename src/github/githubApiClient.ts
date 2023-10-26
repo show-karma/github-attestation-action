@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, all } from "axios";
 import { queryGetMergedPRsByAuthor } from "./query";
 
 export interface IPullRequest {
@@ -6,6 +6,9 @@ export interface IPullRequest {
   title: string;
   permalink: string;
   baseRefName: string;
+  deletions: number;
+  number: number;
+  additions: number;
   author: {
     login: string;
   }
@@ -55,4 +58,17 @@ export class GithubApiClient {
   
     return [...uniqueMergedPRs];
   }
+
+  async getAdditionsAndDelegationsOfPr(owner: string, repository: string, author: string,  pullRequestNumber: number):
+   Promise<{additions: string, deletions: string}> {
+    const allPrs = await this.mergedPRsByAuthor(owner, repository, author);
+
+    const pr = allPrs.find(p => +p.number ===  +pullRequestNumber);
+
+    return {
+      additions: (pr?.additions || 0).toString(),
+      deletions: (pr?.deletions || 0).toString()
+    }
+  }
+
 }

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export declare const FORMAT = 239;
 export declare const MAGIC = 0;
 export declare const VERSION = 1;

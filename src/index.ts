@@ -2,12 +2,15 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { attest } from './attest'
 import { defaultNetworks, supportedNetworks } from './config'
+import { GithubApiClient } from './github/githubApiClient';
+
 
 export async function main() {
   try {
     const privateKey = core.getInput('private-key', { required: true, trimWhitespace: true });
     const network = core.getInput('network', { required: false, trimWhitespace: true }) || 'sepolia';
     const rpcUrl = core.getInput('rpc-url', { required: false, trimWhitespace: true }) || defaultNetworks[network].rpc;
+    const gitApiKey = core.getInput('git-api', { required: false, trimWhitespace: true });
     const _branch = core.getInput('branch', { required: false, trimWhitespace: true }) || '';
     const _branches = core.getMultilineInput('branches', { required: false, trimWhitespace: true }) || [];
     const allowedBranches = (_branches === null || _branches === void 0 ? void 0 : _branches.length) ? _branches : [_branch];
@@ -28,12 +31,17 @@ export async function main() {
       throw new Error(`network "${network}" is not supported`)
     }
 
-
-    const repo = github?.context?.payload?.repository?.full_name
+    const repo = github?.context?.payload?.repository?.full_name || ''
     const branch = github?.context?.ref?.replace('refs/heads/', '')
     const username = github?.context?.payload?.pull_request?.user?.login
     const pullRequestLink = github?.context?.payload?.pull_request?.html_url
     const pullRequestName = github?.context?.payload?.pull_request?.title || github?.context?.payload?.pull_request?.body || 'Name not found'
+    const githubApiClient = new GithubApiClient(gitApiKey);
+
+    const [owner, repository] = repo.split('/');
+    const pullRequestNumber = github?.context?.payload?.pull_request?.number || 0;
+    const {additions, deletions}  = await githubApiClient.getAdditionsAndDelegationsOfPr(owner, repository, username, pullRequestNumber);
+
 
     if (!repo) {
       console.log('repo is not available, skipping attestation.')
@@ -82,7 +90,9 @@ export async function main() {
       branch,
       username,
       pullRequestLink,
-      pullRequestName
+      pullRequestName,
+      additions,
+      deletions,
     })
 
     const { hash, uid } = await attest({
@@ -93,7 +103,9 @@ export async function main() {
       branch,
       username,
       pullRequestLink,
-      pullRequestName
+      pullRequestName,
+      additions,
+      deletions
     })
 
     console.log('Transaction hash:', hash)
