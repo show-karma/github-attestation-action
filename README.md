@@ -43,7 +43,7 @@ jobs:
         uses: show-karma/github-attestation-action@master
         with:
           private-key: ${{ secrets.PRIVATE_KEY }}
-          git-api: ${{ secrets.GIT_API }}
+          git-api: ${{ secrets.GIT_API_KEY }}
           network: sepolia
           branch: master
 ```
