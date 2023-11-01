@@ -1,5 +1,5 @@
 import { GithubApiClient, IPullRequest } from '../github/githubApiClient';
-import { attest } from '../attest';
+import { attest, multiAttest } from '../attest';
 
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -17,16 +17,19 @@ async function attestBackfill(completeRepositoryName: string, username?: string)
     console.log("any PR was found");
   }
 
+  const multiAttestData = {
+    privateKey: process.env.PRIVATE_KEY as string,
+    network: process.env.NETWORK as string,
+    rpcUrl: process.env.RPC as string,
+    attestations: [] as any[]
+  }
+
   
   for(const pr of pullRequests){
     if (allowedBranches.length && !allowedBranches.includes(pr.baseRefName))
       continue
 
-    try{
-    const { hash, uid } = await attest({
-      privateKey: process.env.PRIVATE_KEY as string,
-      network: process.env.NETWORK as string,
-      rpcUrl: process.env.RPC as string,
+      multiAttestData.attestations.push({
       repo: completeRepositoryName,
       branch: pr.baseRefName,
       username: pr.author.login,
@@ -35,16 +38,14 @@ async function attestBackfill(completeRepositoryName: string, username?: string)
       additions: pr.additions.toString(),
       deletions: pr.deletions.toString(),
     })
-
-    console.log('Transaction hash:', hash)
-    console.log('New attestation UID:', uid)
-    console.log('\n\n')
-    }catch(err){
-      console.log(err)
-    }
-  }
         
   }
+ try{
+   await multiAttest(multiAttestData);
+ }catch(err){
+  console.log(err)
+ }
+}
   
   // Check if there are enough command-line arguments
   if (process.argv.length !== 3 && process.argv.length !== 4 ) {
@@ -61,4 +62,4 @@ async function attestBackfill(completeRepositoryName: string, username?: string)
       console.error('An error occurred:', error);
     }
   })();
-  
+
