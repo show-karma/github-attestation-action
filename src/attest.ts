@@ -218,11 +218,9 @@ export async function multiAttest(input : MultiAttestInput) {
     data: at }))
   }]
 
+  await eas.multiAttest(attestationsData);
 
-  // console.log(attestationsData[0].data);
-  await eas.multiAttest(attestationsData)
 }
-
 
 
 if (require.main === module) {
