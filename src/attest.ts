@@ -1,4 +1,4 @@
-import { EAS, SchemaEncoder, SchemaRegistry } from '@ethereum-attestation-service/eas-sdk'
+import { EAS, MultiAttestationRequest, SchemaEncoder, SchemaRegistry } from '@ethereum-attestation-service/eas-sdk'
 import { ethers } from 'ethers'
 import { defaultNetworks } from './config'
 
@@ -8,10 +8,7 @@ type CreateSchemaInput = {
   rpcUrl: string
 }
 
-type AttestInput = {
-  privateKey: string
-  network: string
-  rpcUrl: string
+type AttestationInput = {
   repo: string
   branch: string
   username: string
@@ -20,6 +17,17 @@ type AttestInput = {
   additions: string
   deletions: string
 }
+
+interface SingleAttestInput extends AttestationInput {
+  privateKey: string
+  network: string
+  rpcUrl: string
+}
+
+interface MultiAttestInput extends CreateSchemaInput {
+  attestations: AttestationInput[]
+}
+
 
 export async function createSchema(input: CreateSchemaInput) {
   const { privateKey, network, rpcUrl } = input
@@ -63,7 +71,7 @@ export async function createSchema(input: CreateSchemaInput) {
   return tx
 }
 
-export async function attest(input : AttestInput) {
+export async function attest(input : SingleAttestInput) {
   const { privateKey, network, rpcUrl, repo, branch, username, pullRequestName, pullRequestLink, additions, deletions } = input
 
   if (!privateKey) {
@@ -154,6 +162,66 @@ export async function attest(input : AttestInput) {
     uid: newAttestationUID
   }
 }
+
+
+export async function multiAttest(input : MultiAttestInput) {
+  const { privateKey, network, rpcUrl, attestations } = input
+
+  if (!privateKey) {
+    throw new Error('privateKey is required')
+  }
+
+  if (!network) {
+    throw new Error('network is required')
+  }
+
+  if (!rpcUrl) {
+    throw new Error('rpcUrl is required')
+  }
+
+
+  const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
+  const signer = new ethers.Wallet(privateKey, provider)
+  
+  const EASContractAddress = defaultNetworks[network].easContract
+  if (!EASContractAddress) {
+    throw new Error(`EASContractAddress is not available for network "${network}"`)
+  }
+  const eas = new EAS(EASContractAddress)
+  eas.connect(signer as any)
+
+  const schemaUID = defaultNetworks[network].schemaId
+  if (!schemaUID) {
+    throw new Error(`schemaUID is not available for network "${network}"`)
+  }
+
+  // Initialize SchemaEncoder with the schema string
+  const schemaEncoder = new SchemaEncoder(
+    'string username,string repository,string branch,string pullRequestName,string pullRequestLink,uint256 additions,uint256 deletions'
+    )
+  const encodedData = attestations.map(attest => schemaEncoder.encodeData([
+    { name: 'username', value: attest.username.toLowerCase(), type: 'string' },
+    { name: 'repository', value: attest.repo, type: 'string' },
+    { name: 'branch', value: attest.branch, type: 'string' },
+    { name: 'pullRequestName', value: attest.pullRequestName, type: 'string' },
+    { name: 'pullRequestLink', value: attest.pullRequestLink, type: 'string' },
+    { name: 'additions', value: attest.additions, type: 'uint256' },
+    { name: 'deletions', value: attest.deletions , type: 'uint256' }
+  ]))
+
+  const attestationsData: MultiAttestationRequest[] = [{
+  schema: schemaUID,
+  data: encodedData.map(at => ({
+    recipient: '0x0000000000000000000000000000000000000000',
+    expirationTime: BigInt(0),
+    revocable: true,
+    data: at }))
+  }]
+
+  await eas.multiAttest(attestationsData);
+
+}
+
 
 if (require.main === module) {
   require('dotenv').config()
